@@ -12,10 +12,9 @@ import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
-import com.squareup.picasso.OkHttpDownloader;
-import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,9 +32,9 @@ import io.palaima.debugdrawer.commons.DeviceModule;
 import io.palaima.debugdrawer.commons.NetworkModule;
 import io.palaima.debugdrawer.commons.SettingsModule;
 import io.palaima.debugdrawer.fps.FpsModule;
+import io.palaima.debugdrawer.glide.GlideModule;
 import io.palaima.debugdrawer.location.LocationModule;
 import io.palaima.debugdrawer.okhttp.OkHttpModule;
-import io.palaima.debugdrawer.picasso.PicassoModule;
 import io.palaima.debugdrawer.scalpel.ScalpelModule;
 import io.palaima.debugdrawer.timber.TimberModule;
 import jp.wasabeef.takt.Takt;
@@ -47,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
     private DebugDrawer debugDrawer;
 
-    private Picasso picasso;
+    private Glide glide;
 
     private OkHttpClient okHttpClient;
 
@@ -56,15 +55,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         okHttpClient = createOkHttpClient(this.getApplication());
-        picasso = new Picasso.Builder(this)
-                .downloader(new OkHttpDownloader(okHttpClient))
-                .listener(new Picasso.Listener() {
-                    @Override
-                    public void onImageLoadFailed(Picasso picasso, Uri uri, Exception e) {
-                        Log.e("Picasso", "Failed to load image: %s", e);
-                    }
-                })
-                .build();
+        glide = Glide.get(this);
 
         setupToolBar();
         //change status bar color programmatically
@@ -104,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
                 new ScalpelModule(this),
                 new TimberModule(),
                 new OkHttpModule(okHttpClient),
-                new PicassoModule(picasso),
+                new GlideModule(glide),
                 new DeviceModule(this),
                 new BuildModule(this),
                 new NetworkModule(this),
@@ -119,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         ListView listView = (ListView) findViewById(R.id.image_list);
-        listView.setAdapter(new ImageAdapter(this, images, picasso));
+        listView.setAdapter(new ImageAdapter(this, images));
     }
 
     private void showDummyLog() {
